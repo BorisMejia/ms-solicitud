@@ -1,0 +1,41 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: "ms-solicitud"
+  devtools:
+    add-properties: false
+  h2:
+    console:
+      enabled: true
+      path: "/h2"
+  profiles:
+    include: null
+adapters:
+  r2dbc:
+    host: "localhost"
+    port: 5434
+    database: "solicitud_db"
+    schema: "public"
+    username: "solicitud_user"
+    password: "solicitud_pass"
+  data:
+    r2dbc:
+      repositories: null
+      enabled: true
+spring-doc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8080"
