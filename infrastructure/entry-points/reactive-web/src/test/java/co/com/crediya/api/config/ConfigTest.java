@@ -1,7 +1,6 @@
 package co.com.crediya.api.config;
 
 import co.com.crediya.api.Handler;
-import co.com.crediya.api.RouterRest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;

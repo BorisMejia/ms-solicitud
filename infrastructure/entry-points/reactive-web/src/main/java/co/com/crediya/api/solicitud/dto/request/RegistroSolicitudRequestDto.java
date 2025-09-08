@@ -5,10 +5,7 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
 public record RegistroSolicitudRequestDto(
-        @NotBlank
-        String documento,
-        @Email @NotBlank
-        String email,
+
         @NotNull @DecimalMin(value = "0.01")
         BigDecimal monto,
         @NotNull @Min(1)
