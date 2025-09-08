@@ -2,6 +2,7 @@ package co.com.crediya.api.solicitud;
 
 import co.com.crediya.api.solicitud.dto.request.RegistroSolicitudRequestDto;
 import co.com.crediya.api.solicitud.mapper.SolicitudMapperDto;
+import co.com.crediya.api.solicitud.validation.ValidarSolicitud;
 import co.com.crediya.usecase.solicitud.SolicitudUseCase;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Qualifier;
@@ -19,29 +20,19 @@ public class SolicitudHandler {
 
     private final SolicitudUseCase useCase;
     private final SolicitudMapperDto mapperDto;
-    private final SmartValidator validator;
+    private final ValidarSolicitud validarSolicitud;
 
 
 
     public Mono<ServerResponse> registrarSolicitud(ServerRequest req){
         return req.bodyToMono(RegistroSolicitudRequestDto.class)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("El cuerpo de la petición es requerido")))
-                .flatMap(this::validate)
+                .flatMap(validarSolicitud::validate)
                 .map(mapperDto::toDomain)
                 .flatMap(useCase::registrarSolicitud)
                 .map(mapperDto::toResponse)
                 .flatMap(response -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(response));
-    }
-
-    private Mono<RegistroSolicitudRequestDto> validate(RegistroSolicitudRequestDto body) {
-        var errors = new BeanPropertyBindingResult(body, "registroSolicitudRequest");
-        validator.validate(body, errors);
-        if (errors.hasErrors()) {
-            String msg = errors.getAllErrors().get(0).getDefaultMessage();
-            return Mono.error(new IllegalArgumentException(msg));
-        }
-        return Mono.just(body);
     }
 }

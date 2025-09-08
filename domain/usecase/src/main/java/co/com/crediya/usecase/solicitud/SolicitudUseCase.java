@@ -17,17 +17,17 @@ public class SolicitudUseCase implements ISolicitudUseCase{
     private final TipoPrestamoRepository tipoPrestamoRepository;
     private final ValidacionSolicitud validacionSolicitud;
 
-
     public Mono<Solicitud> registrarSolicitud(Solicitud solicitud) {
         return validacionSolicitud.validarBasica(solicitud)
-                .then(tipoPrestamoRepository.findById(solicitud.getId_tipo_prestamo())
-                        .switchIfEmpty(Mono.error(new NotFoundException("El tipo de prestamo no existe"))))
-                .flatMap(tipoPrestamo -> validacionSolicitud.validarContraTipo(solicitud, tipoPrestamo.getMonto_minimo(), tipoPrestamo.getMonto_maximo()))
-                .map(validarSolicitud -> validarSolicitud.toBuilder()
-                        .estado_solicitud(EstadoSolicitud.PENDIENTE_REVISION)
-                        .build())
+                .flatMap(validada ->
+                        tipoPrestamoRepository.findById(validada.getId_tipo_prestamo())
+                                .switchIfEmpty(Mono.error(new NotFoundException("El tipo de prestamo no existe")))
+                                .flatMap(tipoPrestamo -> validacionSolicitud.validarContraTipo(validada, tipoPrestamo.getMonto_minimo(), tipoPrestamo.getMonto_maximo())
+                                        .map(solicitudEstado -> solicitud.toBuilder()
+                                                .estado_solicitud(EstadoSolicitud.PENDIENTE_REVISION)
+                                                .build())
+                                )
+                )
                 .flatMap(solicitudRepository::saveSolicitud);
     }
-
-
 }

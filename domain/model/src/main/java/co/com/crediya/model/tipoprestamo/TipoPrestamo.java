@@ -18,6 +18,6 @@ public class TipoPrestamo {
     private String nombre_tipo_prestamo;
     private BigDecimal monto_minimo;
     private BigDecimal monto_maximo;
-    private Double tasa_interes;
+    private BigDecimal tasa_interes;
     private Boolean validacion_automatica;
 }
