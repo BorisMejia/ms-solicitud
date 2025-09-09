@@ -29,6 +29,7 @@ public class SolicitudHandler {
                     String emailFromToken = auth.getToken().getSubject();
                     String documento = (String) auth.getTokenAttributes().get("doc");
                     return req.bodyToMono(RegistroSolicitudRequestDto.class)
+                            .flatMap(validarSolicitud::validate)
                             .map(dto -> mapperDto.toUseCae(dto, emailFromToken, documento))
                             .flatMap(useCase::registrarSolicitud)
                             .map(mapperDto::toResponse)

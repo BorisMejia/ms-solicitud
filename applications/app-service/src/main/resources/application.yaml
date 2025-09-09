@@ -32,14 +32,16 @@ security:
   oauth2:
     resource-server:
       jwt:
-        jwk-set-uri: "${HOST)"
+        jwk-set-uri: http://localhost:8080/.well-known/jwks.json
   jwt:
-    issuer: "${ISSU}"
+    issuer: crediya-auth
 logging:
   level:
     org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
-    org.springframework.web.reactive.function.client.ExchangeFunctions: INFO
+    com.nimbusds.jose: DEBUG
+    com.nimbusds.jose.jwk: DEBUG
+    reactor.netty.http.client: DEBUG
+
 
 management:
   endpoints:
