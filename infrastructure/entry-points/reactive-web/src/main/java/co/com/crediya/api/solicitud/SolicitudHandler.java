@@ -3,13 +3,11 @@ package co.com.crediya.api.solicitud;
 import co.com.crediya.api.solicitud.dto.request.RegistroSolicitudRequestDto;
 import co.com.crediya.api.solicitud.mapper.SolicitudMapperDto;
 import co.com.crediya.api.solicitud.validation.ValidarSolicitud;
+import co.com.crediya.api.support.ResponseUtils;
 import co.com.crediya.usecase.solicitud.SolicitudUseCase;
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.Qualifier;
-import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.SmartValidator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -25,14 +23,17 @@ public class SolicitudHandler {
 
 
     public Mono<ServerResponse> registrarSolicitud(ServerRequest req){
-        return req.bodyToMono(RegistroSolicitudRequestDto.class)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("El cuerpo de la petición es requerido")))
-                .flatMap(validarSolicitud::validate)
-                .map(mapperDto::toDomain)
-                .flatMap(useCase::registrarSolicitud)
-                .map(mapperDto::toResponse)
-                .flatMap(response -> ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(response));
+        return req.principal()
+                .cast(JwtAuthenticationToken.class)
+                .flatMap(auth -> {
+                    String emailFromToken = auth.getToken().getSubject();
+                    String documento = (String) auth.getTokenAttributes().get("doc");
+                    return req.bodyToMono(RegistroSolicitudRequestDto.class)
+                            .map(dto -> mapperDto.toUseCae(dto, emailFromToken, documento))
+                            .flatMap(useCase::registrarSolicitud)
+                            .map(mapperDto::toResponse)
+                            .flatMap(ResponseUtils::createdJson);
+                });
+
     }
 }

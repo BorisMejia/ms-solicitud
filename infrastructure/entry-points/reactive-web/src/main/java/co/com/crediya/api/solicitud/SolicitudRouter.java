@@ -6,15 +6,20 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
+
+import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 
 @Configuration
 public class SolicitudRouter {
@@ -31,6 +36,7 @@ public class SolicitudRouter {
                     operation = @Operation(
                             operationId = "registrarSolicitud",
                             summary = "Registrar solicitud",
+                            security = { @SecurityRequirement(name = "bearerAuth") },
                             requestBody = @RequestBody(
                                     required = true,
                                     content = @Content(schema = @Schema(implementation = RegistroSolicitudRequestDto.class))
@@ -45,8 +51,11 @@ public class SolicitudRouter {
             )
     })
     public RouterFunction<ServerResponse> routes(SolicitudHandler solicitudHandler) {
-        return RouterFunctions.route()
-                .POST("/api/v1/solicitud", solicitudHandler::registrarSolicitud)
-                .build();
+        return RouterFunctions
+                .route(POST("/api/v1/solicitud"), solicitudHandler::registrarSolicitud)
+
+                ;
+
+
     }
 }

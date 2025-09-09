@@ -28,6 +28,19 @@ spring-doc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger
+security:
+  oauth2:
+    resource-server:
+      jwt:
+        jwk-set-uri: "${HOST)"
+  jwt:
+    issuer: "${ISSU}"
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.web.reactive.function.client.ExchangeFunctions: INFO
+
 management:
   endpoints:
     web:
