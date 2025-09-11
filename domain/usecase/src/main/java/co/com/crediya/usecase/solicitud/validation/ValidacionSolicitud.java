@@ -8,6 +8,6 @@ import java.math.BigDecimal;
 
 public interface ValidacionSolicitud {
 
-    Mono<Void> validarBasica(SolicitudUseCaseDto solicitud);
-    Mono<Void> validarContraTipo(SolicitudUseCaseDto solicitud, BigDecimal min, BigDecimal max);
+    Mono<SolicitudUseCaseDto> validarBasica(SolicitudUseCaseDto solicitud);
+    Mono<SolicitudUseCaseDto> validarContraTipo(SolicitudUseCaseDto solicitud, BigDecimal min, BigDecimal max);
 }

@@ -4,6 +4,8 @@ import co.com.crediya.model.estado.EstadoSolicitud;
 import co.com.crediya.model.solicitud.Solicitud;
 import co.com.crediya.model.solicitud.exception.NotFoundException;
 import co.com.crediya.model.solicitud.gateways.SolicitudRepository;
+import co.com.crediya.model.solicitud.pagination.PageQuery;
+import co.com.crediya.model.solicitud.pagination.PageResult;
 import co.com.crediya.usecase.solicitud.dto.request.SolicitudUseCaseDto;
 import co.com.crediya.usecase.solicitud.validation.ValidacionSolicitud;
 import co.com.crediya.model.tipoprestamo.gateways.TipoPrestamoRepository;
@@ -34,5 +36,9 @@ public class SolicitudUseCase implements ISolicitudUseCase{
                                 .estado_solicitud(EstadoSolicitud.PENDIENTE_REVISION)
                                 .build()))
                 .flatMap(solicitudRepository::saveSolicitud);
+    }
+
+    public Mono<PageResult<Solicitud>> ejecutarPagination(PageQuery query){
+        return solicitudRepository.findPage(query);
     }
 }

@@ -12,7 +12,6 @@ import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -48,11 +47,25 @@ public class SolicitudRouter {
                                     @ApiResponse(responseCode = "404", description = "No encontrado")
                             }
                     )
+            ),
+            @RouterOperation(
+            path = "/api/v1/solicitudes",
+            method = RequestMethod.GET,
+            beanClass = SolicitudHandler.class,
+            beanMethod = "listar",
+            operation = @Operation(
+                    operationId = "listar",
+                    summary = "listar solicitudes",
+                    responses = {
+                            @ApiResponse(responseCode = "200", description = "OK")
+                    }
             )
+    ),
     })
     public RouterFunction<ServerResponse> routes(SolicitudHandler solicitudHandler) {
         return RouterFunctions
                 .route(POST("/api/v1/solicitud"), solicitudHandler::registrarSolicitud)
+                .andRoute(GET("/api/v1/solicitudes"), solicitudHandler::listar)
 
                 ;
 
