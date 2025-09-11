@@ -2,6 +2,8 @@ package co.com.crediya.usecase.solicitud.validation;
 
 import co.com.crediya.model.solicitud.Solicitud;
 import co.com.crediya.model.solicitud.exception.ValidationException;
+import co.com.crediya.usecase.solicitud.SolicitudUseCase;
+import co.com.crediya.usecase.solicitud.dto.request.SolicitudUseCaseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
@@ -32,21 +34,21 @@ public class ValidacionSolicitudBasicTest {
     @Test
     void validarBasica_ok() {
         var s = valid();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarBasica(s))
-                .expectNextMatches(out -> {
-                    // devuelve el mismo objeto sin modificar
-                    assertThat(out).isSameAs(s);
-                    return true;
-                })
+        StepVerifier.create(validator.validarBasica(dto))
+                .expectNext(dto)
                 .verifyComplete();
     }
 
     @Test
     void validarBasica_error_montoNull() {
         var s = valid().toBuilder().monto(null).build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarBasica(s))
+        StepVerifier.create(validator.validarBasica(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("El monto debe ser mayor que 0");
@@ -57,8 +59,10 @@ public class ValidacionSolicitudBasicTest {
     @Test
     void validarBasica_error_montoCero() {
         var s = valid().toBuilder().monto(BigDecimal.ZERO).build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarBasica(s))
+        StepVerifier.create(validator.validarBasica(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("El monto debe ser mayor que 0");
@@ -69,8 +73,10 @@ public class ValidacionSolicitudBasicTest {
     @Test
     void validarBasica_error_plazoNull() {
         var s = valid().toBuilder().plazo_meses(null).build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarBasica(s))
+        StepVerifier.create(validator.validarBasica(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("El plazo en meses debe ser mayor que 0");
@@ -81,8 +87,10 @@ public class ValidacionSolicitudBasicTest {
     @Test
     void validarBasica_error_plazoNoPositivo() {
         var s = valid().toBuilder().plazo_meses(0).build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarBasica(s))
+        StepVerifier.create(validator.validarBasica(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("El plazo en meses debe ser mayor que 0");
@@ -93,8 +101,10 @@ public class ValidacionSolicitudBasicTest {
     @Test
     void validarBasica_error_documentoNull() {
         var s = valid().toBuilder().documento(null).build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarBasica(s))
+        StepVerifier.create(validator.validarBasica(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("El documento es requerido");
@@ -105,8 +115,10 @@ public class ValidacionSolicitudBasicTest {
     @Test
     void validarBasica_error_documentoBlank() {
         var s = valid().toBuilder().documento("   ").build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarBasica(s))
+        StepVerifier.create(validator.validarBasica(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("El documento es requerido");
@@ -117,8 +129,10 @@ public class ValidacionSolicitudBasicTest {
     @Test
     void validarBasica_error_tipoPrestamoNull() {
         var s = valid().toBuilder().id_tipo_prestamo(null).build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarBasica(s))
+        StepVerifier.create(validator.validarBasica(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("El tipo de prestamo es requerido");
@@ -131,26 +145,32 @@ public class ValidacionSolicitudBasicTest {
     @Test
     void validarContraTipo_ok_sinLimites() {
         var s = valid();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarContraTipo(s, null, null))
-                .expectNext(s)
+        StepVerifier.create(validator.validarContraTipo(dto, null, null))
+                .expectNext()
                 .verifyComplete();
     }
 
     @Test
     void validarContraTipo_ok_enLimitesIguales() {
         var s = valid().toBuilder().monto(new BigDecimal("500000")).build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarContraTipo(s, new BigDecimal("500000"), new BigDecimal("500000")))
-                .expectNext(s)
+        StepVerifier.create(validator.validarContraTipo(dto, new BigDecimal("500000"), new BigDecimal("500000")))
+                .expectNext()
                 .verifyComplete();
     }
 
     @Test
     void validarContraTipo_error_menorQueMinimo() {
         var s = valid().toBuilder().monto(new BigDecimal("500000")).build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarContraTipo(s, new BigDecimal("600000"), null))
+        StepVerifier.create(validator.validarContraTipo(dto, new BigDecimal("600000"), null))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("Monto menor al mínimo permitido");
@@ -161,8 +181,10 @@ public class ValidacionSolicitudBasicTest {
     @Test
     void validarContraTipo_error_mayorQueMaximo() {
         var s = valid().toBuilder().monto(new BigDecimal("700000")).build();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        StepVerifier.create(validator.validarContraTipo(s, null, new BigDecimal("650000")))
+        StepVerifier.create(validator.validarContraTipo(dto, null, new BigDecimal("650000")))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("Monto mayor al máximo permitido");

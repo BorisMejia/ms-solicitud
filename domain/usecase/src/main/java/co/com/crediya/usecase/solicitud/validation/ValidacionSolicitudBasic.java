@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 public class ValidacionSolicitudBasic implements ValidacionSolicitud{
 
-    public Mono<Void> validarBasica(SolicitudUseCaseDto solicitud) {
+    public Mono<SolicitudUseCaseDto> validarBasica(SolicitudUseCaseDto solicitud) {
         if (solicitud.monto() == null || solicitud.monto().compareTo(BigDecimal.ZERO) <= 0)
             return Mono.error(new ValidationException("El monto debe ser mayor que 0"));
         if (solicitud.plazo_meses() == null || solicitud.plazo_meses() <= 0)
@@ -21,16 +21,16 @@ public class ValidacionSolicitudBasic implements ValidacionSolicitud{
         if (solicitud.id_tipo_prestamo() == null)
             return Mono.error(new ValidationException("El tipo de prestamo es requerido"));
 
-        return Mono.empty();
+        return Mono.just(solicitud);
     }
 
-    public Mono<Void> validarContraTipo(SolicitudUseCaseDto solicitud, BigDecimal min, BigDecimal max) {
+    public Mono<SolicitudUseCaseDto> validarContraTipo(SolicitudUseCaseDto solicitud, BigDecimal min, BigDecimal max) {
         if (min != null && solicitud.monto().compareTo(min) < 0)
             return Mono.error(new ValidationException("Monto menor al mínimo permitido"));
         if (max != null && solicitud.monto().compareTo(max) > 0)
             return Mono.error(new ValidationException("Monto mayor al máximo permitido"));
 
-        return Mono.empty();
+        return Mono.just(solicitud);
     }
 
 }

@@ -7,6 +7,7 @@ import co.com.crediya.model.solicitud.exception.ValidationException;
 import co.com.crediya.model.solicitud.gateways.SolicitudRepository;
 import co.com.crediya.model.tipoprestamo.TipoPrestamo;
 import co.com.crediya.model.tipoprestamo.gateways.TipoPrestamoRepository;
+import co.com.crediya.usecase.solicitud.dto.request.SolicitudUseCaseDto;
 import co.com.crediya.usecase.solicitud.validation.ValidacionSolicitud;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,9 +46,9 @@ public class SolicitudUseCaseTest {
                 .documento("CC123")
                 .email("user@example.com")
                 .monto(new BigDecimal("1000000"))
-                .plazo_meses(12)         // usa los mismos nombres que en tu builder
+                .plazo_meses(12)
                 .id_tipo_prestamo(1L)
-                .estado_solicitud(EstadoSolicitud.PENDIENTE_REVISION) // se debe sobreescribir
+                .estado_solicitud(EstadoSolicitud.PENDIENTE_REVISION)
                 .build();
     }
 
@@ -66,15 +67,17 @@ public class SolicitudUseCaseTest {
     void registrarSolicitud_ok() {
         var s = validSolicitud();
         var t = tipo();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        when(validacionSolicitud.validarBasica(s)).thenReturn(Mono.just(s));
+        when(validacionSolicitud.validarBasica(dto)).thenReturn(Mono.just(dto));
         when(tipoPrestamoRepository.findById(1L)).thenReturn(Mono.just(t));
-        when(validacionSolicitud.validarContraTipo(s, t.getMonto_minimo(), t.getMonto_maximo()))
-                .thenReturn(Mono.just(s));
+        when(validacionSolicitud.validarContraTipo(dto, t.getMonto_minimo(), t.getMonto_maximo()))
+                .thenReturn(Mono.just(dto));
         // deja que el adapter devuelva lo que recibe (para poder capturarlo)
         when(solicitudRepository.saveSolicitud(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
 
-        StepVerifier.create(useCase.registrarSolicitud(s))
+        StepVerifier.create(useCase.registrarSolicitud(dto))
                 .assertNext(res -> {
                     assertThat(res.getEstado_solicitud()).isEqualTo(EstadoSolicitud.PENDIENTE_REVISION);
                     assertThat(res.getMonto()).isEqualByComparingTo(s.getMonto());
@@ -83,9 +86,9 @@ public class SolicitudUseCaseTest {
                 .verifyComplete();
 
         // interacciones
-        verify(validacionSolicitud).validarBasica(s);
+        verify(validacionSolicitud).validarBasica(dto);
         verify(tipoPrestamoRepository).findById(1L);
-        verify(validacionSolicitud).validarContraTipo(s, t.getMonto_minimo(), t.getMonto_maximo());
+        verify(validacionSolicitud).validarContraTipo(dto, t.getMonto_minimo(), t.getMonto_maximo());
 
         // se guarda con estado forzado a PENDIENTE_REVISION
         ArgumentCaptor<Solicitud> cap = ArgumentCaptor.forClass(Solicitud.class);
@@ -98,17 +101,19 @@ public class SolicitudUseCaseTest {
     @Test
     void registrarSolicitud_error_enValidacionBasica() {
         var s = validSolicitud();
-        when(validacionSolicitud.validarBasica(s))
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
+        when(validacionSolicitud.validarBasica(dto))
                 .thenReturn(Mono.error(new ValidationException("El monto debe ser mayor que 0")));
 
-        StepVerifier.create(useCase.registrarSolicitud(s))
+        StepVerifier.create(useCase.registrarSolicitud(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("El monto debe ser mayor que 0");
                 })
                 .verify();
 
-        verify(validacionSolicitud).validarBasica(s);
+        verify(validacionSolicitud).validarBasica(dto);
         verifyNoInteractions(tipoPrestamoRepository);
         verifyNoInteractions(solicitudRepository);
     }
@@ -116,17 +121,19 @@ public class SolicitudUseCaseTest {
     @Test
     void registrarSolicitud_error_tipoPrestamoNoExiste() {
         var s = validSolicitud();
-        when(validacionSolicitud.validarBasica(s)).thenReturn(Mono.just(s));
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
+        when(validacionSolicitud.validarBasica(dto)).thenReturn(Mono.just(dto));
         when(tipoPrestamoRepository.findById(1L)).thenReturn(Mono.empty());
 
-        StepVerifier.create(useCase.registrarSolicitud(s))
+        StepVerifier.create(useCase.registrarSolicitud(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(NotFoundException.class);
                     assertThat(ex.getMessage()).isEqualTo("El tipo de prestamo no existe");
                 })
                 .verify();
 
-        verify(validacionSolicitud).validarBasica(s);
+        verify(validacionSolicitud).validarBasica(dto);
         verify(tipoPrestamoRepository).findById(1L);
         verifyNoInteractions(solicitudRepository);
     }
@@ -135,22 +142,24 @@ public class SolicitudUseCaseTest {
     void registrarSolicitud_error_validacionContraTipo() {
         var s = validSolicitud();
         var t = tipo();
+        var dto = new SolicitudUseCaseDto(s.getDocumento(), s.getEmail(), s.getMonto(),
+                s.getPlazo_meses(), s.getId_tipo_prestamo());
 
-        when(validacionSolicitud.validarBasica(s)).thenReturn(Mono.just(s));
+        when(validacionSolicitud.validarBasica(dto)).thenReturn(Mono.just(dto));
         when(tipoPrestamoRepository.findById(1L)).thenReturn(Mono.just(t));
-        when(validacionSolicitud.validarContraTipo(s, t.getMonto_minimo(), t.getMonto_maximo()))
+        when(validacionSolicitud.validarContraTipo(dto, t.getMonto_minimo(), t.getMonto_maximo()))
                 .thenReturn(Mono.error(new ValidationException("Monto mayor al máximo permitido")));
 
-        StepVerifier.create(useCase.registrarSolicitud(s))
+        StepVerifier.create(useCase.registrarSolicitud(dto))
                 .expectErrorSatisfies(ex -> {
                     assertThat(ex).isInstanceOf(ValidationException.class);
                     assertThat(ex.getMessage()).isEqualTo("Monto mayor al máximo permitido");
                 })
                 .verify();
 
-        verify(validacionSolicitud).validarBasica(s);
+        verify(validacionSolicitud).validarBasica(dto);
         verify(tipoPrestamoRepository).findById(1L);
-        verify(validacionSolicitud).validarContraTipo(s, t.getMonto_minimo(), t.getMonto_maximo());
+        verify(validacionSolicitud).validarContraTipo(dto, t.getMonto_minimo(), t.getMonto_maximo());
         verifyNoInteractions(solicitudRepository);
     }
 }
