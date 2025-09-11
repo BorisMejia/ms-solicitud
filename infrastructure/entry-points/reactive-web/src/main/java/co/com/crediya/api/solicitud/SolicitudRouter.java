@@ -47,11 +47,25 @@ public class SolicitudRouter {
                                     @ApiResponse(responseCode = "404", description = "No encontrado")
                             }
                     )
+            ),
+            @RouterOperation(
+            path = "/api/v1/solicitudes",
+            method = RequestMethod.GET,
+            beanClass = SolicitudHandler.class,
+            beanMethod = "listar",
+            operation = @Operation(
+                    operationId = "listar",
+                    summary = "listar solicitudes",
+                    responses = {
+                            @ApiResponse(responseCode = "200", description = "OK")
+                    }
             )
+    ),
     })
     public RouterFunction<ServerResponse> routes(SolicitudHandler solicitudHandler) {
         return RouterFunctions
                 .route(POST("/api/v1/solicitud"), solicitudHandler::registrarSolicitud)
+                .andRoute(GET("/api/v1/solicitudes"), solicitudHandler::listar)
 
                 ;
 
