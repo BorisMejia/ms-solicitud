@@ -4,5 +4,5 @@ import co.com.crediya.model.estado.Estado;
 import reactor.core.publisher.Mono;
 
 public interface EstadoRepository {
-    Mono<Estado>findByName(String nombre_estado);
+    Mono<Estado>findNameById(Long id);
 }
