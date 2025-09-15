@@ -3,6 +3,7 @@ package co.com.crediya.usecase.solicitud;
 import co.com.crediya.model.estado.EstadoSolicitud;
 import co.com.crediya.model.estado.gateways.EstadoRepository;
 import co.com.crediya.model.solicitud.Solicitud;
+import co.com.crediya.model.solicitante.gateways.SolicitanteInfoRepository;
 import co.com.crediya.usecase.solicitud.dto.response.SolicitudInfo;
 import co.com.crediya.model.solicitud.exception.NotFoundException;
 import co.com.crediya.model.solicitud.gateways.SolicitudRepository;
@@ -23,6 +24,7 @@ public class SolicitudUseCase implements ISolicitudUseCase{
     private final TipoPrestamoRepository tipoPrestamoRepository;
     private final ValidacionSolicitud validacionSolicitud;
     private final EstadoRepository estadoRepository;
+    private final SolicitanteInfoRepository solicitanteInfoRepository;
 
     @Override
     public Mono<Solicitud> registrarSolicitud(SolicitudUseCaseDto solicitud) {
@@ -44,25 +46,38 @@ public class SolicitudUseCase implements ISolicitudUseCase{
 
 
 
-    public Mono<PageResult<SolicitudInfo>> ejecutarPagination(PageQuery query){
+    public Mono<PageResult<SolicitudInfo>> ejecutarPagination(PageQuery query) {
         return solicitudRepository.findPage(query)
             .flatMap(pageResult -> Flux.fromIterable(pageResult.items())
                 .flatMap(solicitud -> {
                     EstadoSolicitud estado = solicitud.getEstado_solicitud() != null
                         ? solicitud.getEstado_solicitud()
                         : EstadoSolicitud.PENDIENTE_REVISION;
-                    return tipoPrestamoRepository.findById(solicitud.getId_tipo_prestamo())
-                        .flatMap(tipoPrestamo -> estadoRepository.findNameById(Long.valueOf(estado.ordinal() + 1))
-                            .map(estadoObj -> new SolicitudInfo(
-                                solicitud.getId_solicitud(),
-                                solicitud.getDocumento(),
-                                solicitud.getEmail(),
-                                solicitud.getMonto(),
-                                solicitud.getPlazo_meses(),
-                                tipoPrestamo.getNombre_tipo_prestamo(),
-                                estadoObj.getNombre_estado()
-                            ))
-                        );
+                    Mono<String> nombreTipoPrestamo$ = tipoPrestamoRepository.findById(solicitud.getId_tipo_prestamo())
+                        .map(tp -> tp.getNombre_tipo_prestamo())
+                        .defaultIfEmpty("");
+                    Mono<String> nombreEstado$ = estadoRepository.findNameById(Long.valueOf(estado.ordinal() + 1))
+                        .map(e -> e.getNombre_estado())
+                        .defaultIfEmpty("");
+                    Mono<String> nombreSolicitante$ = solicitanteInfoRepository.obtenerPorDocumento(solicitud.getDocumento())
+                        .map(s -> s != null && s.nombre() != null ? s.nombre() : "")
+                        .defaultIfEmpty("");
+                    Mono<Double> salarioBase$ = solicitanteInfoRepository.obtenerPorDocumento(solicitud.getDocumento())
+                        .map(s -> s != null && s.salarioBase() != null ? s.salarioBase() : 0.0)
+                        .defaultIfEmpty(0.0);
+
+                    return Mono.zip(nombreTipoPrestamo$, nombreEstado$, nombreSolicitante$, salarioBase$)
+                        .map(tuple -> new SolicitudInfo(
+                            solicitud.getId_solicitud(),
+                            solicitud.getDocumento(),
+                            solicitud.getEmail(),
+                            solicitud.getMonto(),
+                            solicitud.getPlazo_meses(),
+                            tuple.getT1() != null ? tuple.getT1() : "",
+                            tuple.getT2() != null ? tuple.getT2() : "",
+                            tuple.getT3() != null ? tuple.getT3() : "",
+                            tuple.getT4() != null ? tuple.getT4() : 0.0
+                        ));
                 })
                 .collectList()
                 .map(items -> PageResult.of(items, pageResult.page(), pageResult.size(), pageResult.totalItems()))
