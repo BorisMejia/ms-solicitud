@@ -17,5 +17,5 @@ public class SolicitudEntity {
     private BigDecimal monto;
     private Integer plazo_meses;
     private Long id_tipo_prestamo;
-    private String estado_solicitud;
+    private Long id_estado;
 }
