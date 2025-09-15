@@ -1,9 +1,11 @@
 package co.com.crediya.usecase.solicitud;
 
+import co.com.crediya.model.estado.Estado;
 import co.com.crediya.model.estado.EstadoSolicitud;
 import co.com.crediya.model.estado.gateways.EstadoRepository;
 import co.com.crediya.model.solicitud.Solicitud;
 import co.com.crediya.model.solicitante.gateways.SolicitanteInfoRepository;
+import co.com.crediya.model.tipoprestamo.TipoPrestamo;
 import co.com.crediya.usecase.solicitud.dto.response.SolicitudInfo;
 import co.com.crediya.model.solicitud.exception.NotFoundException;
 import co.com.crediya.model.solicitud.gateways.SolicitudRepository;
@@ -54,10 +56,10 @@ public class SolicitudUseCase implements ISolicitudUseCase{
                         ? solicitud.getEstado_solicitud()
                         : EstadoSolicitud.PENDIENTE_REVISION;
                     Mono<String> nombreTipoPrestamo$ = tipoPrestamoRepository.findById(solicitud.getId_tipo_prestamo())
-                        .map(tp -> tp.getNombre_tipo_prestamo())
+                        .map(TipoPrestamo::getNombre_tipo_prestamo)
                         .defaultIfEmpty("");
                     Mono<String> nombreEstado$ = estadoRepository.findNameById(Long.valueOf(estado.ordinal() + 1))
-                        .map(e -> e.getNombre_estado())
+                        .map(Estado::getNombre_estado)
                         .defaultIfEmpty("");
                     Mono<String> nombreSolicitante$ = solicitanteInfoRepository.obtenerPorDocumento(solicitud.getDocumento())
                         .map(s -> s != null && s.nombre() != null ? s.nombre() : "")
