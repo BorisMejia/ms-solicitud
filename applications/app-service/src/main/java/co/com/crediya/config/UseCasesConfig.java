@@ -1,6 +1,7 @@
 package co.com.crediya.config;
 
 import co.com.crediya.model.estado.gateways.EstadoRepository;
+import co.com.crediya.model.solicitante.gateways.SolicitanteInfoRepository;
 import co.com.crediya.model.solicitud.gateways.SolicitudRepository;
 import co.com.crediya.usecase.solicitud.validation.ValidacionSolicitud;
 import co.com.crediya.model.tipoprestamo.gateways.TipoPrestamoRepository;
@@ -23,9 +24,10 @@ public class UseCasesConfig {
                 SolicitudRepository solicitudRepository,
                 TipoPrestamoRepository tipoPrestamoRepository,
                 ValidacionSolicitud validacionSolicitud,
-                EstadoRepository estadoRepository
+                EstadoRepository estadoRepository,
+                SolicitanteInfoRepository solicitanteInfoRepository
         ){
-                return new SolicitudUseCase(solicitudRepository, tipoPrestamoRepository, validacionSolicitud, estadoRepository);
+                return new SolicitudUseCase(solicitudRepository, tipoPrestamoRepository, validacionSolicitud, estadoRepository, solicitanteInfoRepository);
         }
 
 }
