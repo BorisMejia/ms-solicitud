@@ -1,10 +1,12 @@
 package co.com.crediya.api.solicitud;
 
 import co.com.crediya.api.solicitud.dto.request.RegistroSolicitudRequestDto;
+import co.com.crediya.api.solicitud.dto.response.SolicitudDetalleResponse;
 import co.com.crediya.api.solicitud.mapper.SolicitudMapperDto;
 import co.com.crediya.api.solicitud.validation.ValidarSolicitud;
 import co.com.crediya.api.support.ResponseUtils;
 import co.com.crediya.model.solicitud.pagination.PageQuery;
+import co.com.crediya.model.solicitud.pagination.PageResult;
 import co.com.crediya.usecase.solicitud.SolicitudUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -50,9 +52,25 @@ public class SolicitudHandler {
         PageQuery q = PageQuery.of(page, size, sortBy, asc);
 
         return useCase.ejecutarPagination(q)
-                .flatMap(pr -> ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(pr));
+            .map(pageResult -> PageResult.of(
+                pageResult.items().stream()
+                    .map(info -> new SolicitudDetalleResponse(
+                        info.id_solicitud(),
+                        info.documento(),
+                        info.email(),
+                        info.monto().longValue(),
+                        info.plazo_meses(),
+                        info.nombre_tipo_prestamo(),
+                        info.nombre_estado_solicitud()
+                    ))
+                    .toList(),
+                pageResult.page(),
+                pageResult.size(),
+                pageResult.totalItems()
+            ))
+            .flatMap(pr -> ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(pr));
     }
 
     private int parseInt(String s, int def) {
