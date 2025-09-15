@@ -61,7 +61,9 @@ public class SolicitudHandler {
                         info.monto().longValue(),
                         info.plazo_meses(),
                         info.nombre_tipo_prestamo(),
-                        info.nombre_estado_solicitud()
+                        info.nombre_estado_solicitud(),
+                        info.nombre_solicitante(),
+                        info.salario_base()
                     ))
                     .toList(),
                 pageResult.page(),
