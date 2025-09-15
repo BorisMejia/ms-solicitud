@@ -1,5 +1,7 @@
 package co.com.crediya.api.solicitud.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record SolicitudDetalleResponse(
     Long id_solicitud,
     String documento,
@@ -7,5 +9,7 @@ public record SolicitudDetalleResponse(
     Long monto,
     Integer plazo_meses,
     String nombre_tipo_prestamo,
-    String nombre_estado_solicitud
+    String nombre_estado_solicitud,
+    @JsonProperty("name") String nombre_solicitante,
+    @JsonProperty("baseSalary") Double salario_base
 ) {}

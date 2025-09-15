@@ -9,5 +9,7 @@ public record SolicitudInfo(
     BigDecimal monto,
     Integer plazo_meses,
     String nombre_tipo_prestamo,
-    String nombre_estado_solicitud
+    String nombre_estado_solicitud,
+    String nombre_solicitante,
+    Double salario_base
 ) {}
