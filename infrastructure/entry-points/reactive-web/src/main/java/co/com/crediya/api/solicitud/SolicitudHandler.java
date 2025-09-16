@@ -64,7 +64,8 @@ public class SolicitudHandler {
                         info.nombre_estado_solicitud(),
                         info.nombre_solicitante(),
                         info.salario_base(),
-                        info.tasa_interes()
+                        info.tasa_interes(),
+                        info.monto_mensual_solicitud()
                     ))
                     .toList(),
                 pageResult.page(),

@@ -14,5 +14,6 @@ public record SolicitudDetalleResponse(
     String nombre_estado_solicitud,
     @JsonProperty("name") String nombre_solicitante,
     @JsonProperty("baseSalary") Double salario_base,
-    BigDecimal tasa_interes
+    BigDecimal tasa_interes,
+    BigDecimal monto_mensual_solicitud
 ) {}
