@@ -2,6 +2,8 @@ package co.com.crediya.model.estado;
 
 public enum EstadoSolicitud {
     PENDIENTE_REVISION,
-    APROBADO,
-    RECHAZADO
+    REVISION_MANUAL,
+    RECHAZADO,
+    APROBADO;
+
 }

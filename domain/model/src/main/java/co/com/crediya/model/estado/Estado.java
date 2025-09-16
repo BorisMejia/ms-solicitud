@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Estado {
-    private Integer id_estado;
+    private Long id_estado;
     private String nombre_estado;
     private String descripcion_estado;
 }

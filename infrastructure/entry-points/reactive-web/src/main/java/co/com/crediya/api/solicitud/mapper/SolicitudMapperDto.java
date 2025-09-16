@@ -18,5 +18,9 @@ public interface SolicitudMapperDto {
     SolicitudUseCaseDto toUseCae(RegistroSolicitudRequestDto registroSolicitud, String emailFromToken, String documentoFromToken);
 
 
+    @Mappings({
+        @Mapping(target = "id_solicitud", source = "id_solicitud"),
+        @Mapping(target = "estado_solicitud", expression = "java(solicitud.getEstado_solicitud().name())")
+    })
     RegistrarSolicitudResponse toResponse(Solicitud solicitud);
 }

@@ -41,8 +41,9 @@ logging:
     com.nimbusds.jose: DEBUG
     com.nimbusds.jose.jwk: DEBUG
     reactor.netty.http.client: DEBUG
-
-
+user:
+  service:
+    url: "http://localhost:8080"
 management:
   endpoints:
     web:
