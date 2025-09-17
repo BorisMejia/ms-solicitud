@@ -149,7 +149,7 @@ public class ValidacionSolicitudBasicTest {
                 s.getPlazo_meses(), s.getId_tipo_prestamo());
 
         StepVerifier.create(validator.validarContraTipo(dto, null, null))
-                .expectNext()
+                .expectNext(dto)
                 .verifyComplete();
     }
 
@@ -160,7 +160,7 @@ public class ValidacionSolicitudBasicTest {
                 s.getPlazo_meses(), s.getId_tipo_prestamo());
 
         StepVerifier.create(validator.validarContraTipo(dto, new BigDecimal("500000"), new BigDecimal("500000")))
-                .expectNext()
+                .expectNext(dto)
                 .verifyComplete();
     }
 
