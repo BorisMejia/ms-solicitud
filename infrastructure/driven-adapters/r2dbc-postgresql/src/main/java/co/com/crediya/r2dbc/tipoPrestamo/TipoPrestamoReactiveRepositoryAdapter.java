@@ -27,6 +27,15 @@ public class TipoPrestamoReactiveRepositoryAdapter extends ReactiveAdapterOperat
 
     @Override
     public Mono<TipoPrestamo> findById(Long id) {
-        return repository.findById(id).map(this::toEntity);
+        return repository.findById(id)
+                .map(entity -> TipoPrestamo.builder()
+                        .id_tipo_prestamo(entity.getId_tipo_prestamo())
+                        .nombre_tipo_prestamo(entity.getNombre())
+                        .monto_minimo(entity.getMonto_minimo())
+                        .monto_maximo(entity.getMonto_maximo())
+                        .tasa_interes(entity.getTasa_interes())
+                        .validacion_automatica(entity.getValidacion_automatica())
+                        .build()
+                );
     }
 }
