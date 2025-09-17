@@ -14,7 +14,7 @@ spring:
 adapters:
   r2dbc:
     host: "localhost"
-    port: 5434
+    port: 5432
     database: "solicitud_db"
     schema: "public"
     username: "solicitud_user"
@@ -32,7 +32,7 @@ security:
   oauth2:
     resource-server:
       jwt:
-        jwk-set-uri: http://localhost:8080/.well-known/jwks.json
+        jwk-set-uri: http://ms-authentication:8080/.well-known/jwks.json
   jwt:
     issuer: crediya-auth
 logging:
