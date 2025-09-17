@@ -1,5 +1,6 @@
 package co.com.crediya.r2dbc.solicitud;
 
+import co.com.crediya.model.estado.EstadoSolicitud;
 import co.com.crediya.model.solicitud.Solicitud;
 import co.com.crediya.model.solicitud.gateways.SolicitudRepository;
 import co.com.crediya.model.solicitud.pagination.PageQuery;
@@ -30,7 +31,15 @@ public class SolicitudReactiveRepositoryAdapter extends ReactiveAdapterOperation
          *  super(repository, mapper, d -> mapper.mapBuilder(d,ObjectModel.ObjectModelBuilder.class).build());
          *  Or using mapper.map with the class of the object model
          */
-        super(repository, mapper, d -> mapper.mapBuilder(d,Solicitud.SolicitudBuilder.class).build());
+        super(repository, mapper, d -> {
+            Solicitud.SolicitudBuilder builder = mapper.mapBuilder(d, Solicitud.SolicitudBuilder.class);
+            if (d.getId_estado() != null) {
+                builder.estado_solicitud(co.com.crediya.model.estado.EstadoSolicitud.fromId(d.getId_estado().intValue()));
+            } else {
+                builder.estado_solicitud(null);
+            }
+            return builder.build();
+        });
 
         this.template = template;
     }
@@ -38,7 +47,13 @@ public class SolicitudReactiveRepositoryAdapter extends ReactiveAdapterOperation
     @Transactional
     @Override
     public Mono<Solicitud> saveSolicitud(Solicitud solicitud) {
-        return repository.save(toData(solicitud))
+        SolicitudEntity entity = toData(solicitud);
+        if (solicitud.getEstado_solicitud() != null) {
+            entity.setId_estado(Long.valueOf(solicitud.getEstado_solicitud().getId()));
+        } else {
+            entity.setId_estado(null);
+        }
+        return repository.save(entity)
                 .map(this::toEntity);
     }
 

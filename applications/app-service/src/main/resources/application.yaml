@@ -13,7 +13,7 @@ spring:
     include: null
 adapters:
   r2dbc:
-    host: "localhost"
+    host: "postgres-solicitud"
     port: 5432
     database: "solicitud_db"
     schema: "public"
@@ -43,7 +43,7 @@ logging:
     reactor.netty.http.client: DEBUG
 user:
   service:
-    url: "http://localhost:8080"
+    url: "http://ms-authentication:8080"
 management:
   endpoints:
     web:
