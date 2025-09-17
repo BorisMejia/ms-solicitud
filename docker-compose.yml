@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    container_name: solicitud-db
+    environment:
+      POSTGRES_DB: solicitud_db
+      POSTGRES_USER: solicitud_user
+      POSTGRES_PASSWORD: solicitud_pass
+    ports:
+      - "127.0.0.1:5434:5432" # Solo accesible localmente
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - app-network
+
+  app-solicitud:
+    build: 
+      context: .
+      dockerfile: deployment/Dockerfile
+    container_name: ms-solicitud  
+    depends_on:
+      - postgres
+    environment:
+      DB_URL: r2dbc:postgresql://postgres:5434/solicitud_db
+      DB_USER: solicitud_user
+      DB_PASS: solicitud_pass
+      JWK_URL: http://ms-authentication:8080/.well-known/jwks.json
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
