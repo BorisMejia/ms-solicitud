@@ -33,20 +33,21 @@ public class SolicitudUseCase implements ISolicitudUseCase{
 
     @Override
     public Mono<Solicitud> registrarSolicitud(SolicitudUseCaseDto solicitud) {
-        return validacionSolicitud.validarBasica(solicitud)
-                .then(tipoPrestamoRepository.findById(solicitud.id_tipo_prestamo())
-                        .switchIfEmpty(Mono.error(new NotFoundException("El tipo de prestamo no existe"))))
-                .flatMap(validacion -> validacionSolicitud.validarContraTipo(solicitud, validacion.getMonto_minimo(), validacion.getMonto_maximo()))
-                .then(Mono.fromSupplier(() ->
-                        Solicitud.builder()
-                                .documento(solicitud.documento())
-                                .email(solicitud.email())
-                                .monto(solicitud.monto())
-                                .plazo_meses(solicitud.plazo_meses())
-                                .id_tipo_prestamo(solicitud.id_tipo_prestamo())
-                                .estado_solicitud(EstadoSolicitud.PENDIENTE_REVISION)
-                                .build()))
-                .flatMap(solicitudRepository::saveSolicitud);
+    return validacionSolicitud.validarBasica(solicitud)
+        .flatMap(dto -> tipoPrestamoRepository.findById(solicitud.id_tipo_prestamo())
+        .switchIfEmpty(Mono.error(new NotFoundException("El tipo de prestamo no existe")))
+        .flatMap(validacion -> validacionSolicitud.validarContraTipo(solicitud, validacion.getMonto_minimo(), validacion.getMonto_maximo()))
+        .then(Mono.fromSupplier(() ->
+            Solicitud.builder()
+                .documento(solicitud.documento())
+                .email(solicitud.email())
+                .monto(solicitud.monto())
+                .plazo_meses(solicitud.plazo_meses())
+                .id_tipo_prestamo(solicitud.id_tipo_prestamo())
+                .estado_solicitud(EstadoSolicitud.PENDIENTE_REVISION)
+                .build()))
+        .flatMap(solicitudRepository::saveSolicitud)
+        );
     }
 
 
