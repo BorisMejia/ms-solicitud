@@ -10,4 +10,5 @@ public interface SolicitudRepository {
     Mono<Solicitud> saveSolicitud(Solicitud solicitud);
     Mono<PageResult<Solicitud>> findPage(PageQuery query);
     Mono<Solicitud> updateEstadoSolicitud(Long idSolicitud, EstadoSolicitud nuevoEstado);
+    Mono<Solicitud> findById(Long id);
 }
