@@ -106,4 +106,15 @@ public class SolicitudUseCase implements ISolicitudUseCase{
                     );
                 });
     }
+
+    public Mono<Solicitud> actualizarEstado(Long idSolicitud, EstadoSolicitud nuevoEstado) {
+        return solicitudRepository.findById(idSolicitud)
+                .switchIfEmpty(Mono.error(new NotFoundException("Solicitud no encontrada")))
+                .flatMap(solicitud -> {
+                    Solicitud actualizada = solicitud.toBuilder()
+                            .estado_solicitud(nuevoEstado)
+                            .build();
+                    return solicitudRepository.saveSolicitud(actualizada);
+                });
+    }
 }
