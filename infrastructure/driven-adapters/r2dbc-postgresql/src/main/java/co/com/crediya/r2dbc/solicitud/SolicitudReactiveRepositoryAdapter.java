@@ -74,4 +74,15 @@ public class SolicitudReactiveRepositoryAdapter extends ReactiveAdapterOperation
                 .map(tuple -> PageResult.of(tuple.getT1(), pageQuery.page(), pageQuery.size(), tuple.getT2()))
                 ;
     }
+
+    @Override
+    public Mono<Solicitud> updateEstadoSolicitud(Long idSolicitud, EstadoSolicitud nuevoEstado) {
+        return findById(idSolicitud)
+            .switchIfEmpty(Mono.error(new RuntimeException("Solicitud no encontrada")))
+            .flatMap(solicitud -> {
+                SolicitudEntity entity = toData(solicitud);
+                entity.setId_estado(Long.valueOf(nuevoEstado.getId()));
+                return repository.save(entity).map(this::toEntity);
+            });
+    }
 }

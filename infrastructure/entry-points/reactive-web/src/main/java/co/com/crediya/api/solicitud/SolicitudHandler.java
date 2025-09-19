@@ -1,10 +1,12 @@
 package co.com.crediya.api.solicitud;
 
+import co.com.crediya.api.solicitud.dto.request.ActualizarEstadoSolicitudRequestDto;
 import co.com.crediya.api.solicitud.dto.request.RegistroSolicitudRequestDto;
 import co.com.crediya.api.solicitud.dto.response.SolicitudDetalleResponse;
 import co.com.crediya.api.solicitud.mapper.SolicitudMapperDto;
 import co.com.crediya.api.solicitud.validation.ValidarSolicitud;
 import co.com.crediya.api.support.ResponseUtils;
+import co.com.crediya.model.estado.EstadoSolicitud;
 import co.com.crediya.model.solicitud.pagination.PageQuery;
 import co.com.crediya.model.solicitud.pagination.PageResult;
 import co.com.crediya.usecase.solicitud.SolicitudUseCase;
@@ -75,6 +77,16 @@ public class SolicitudHandler {
             .flatMap(pr -> ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(pr));
+    }
+
+    public Mono<ServerResponse> actualizarSolicitud(ServerRequest request){
+        return request.bodyToMono(ActualizarEstadoSolicitudRequestDto.class)
+                .flatMap(actualizarSolicitud -> {
+                    EstadoSolicitud nuevoEstado = EstadoSolicitud.fromId(actualizarSolicitud.id_estado().intValue());
+                    return useCase.actualizarEstado(actualizarSolicitud.id_solicitud(), nuevoEstado);
+                })
+                .flatMap(ResponseUtils::okJson);
+
     }
 
     private int parseInt(String s, int def) {

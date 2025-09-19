@@ -1,5 +1,6 @@
 package co.com.crediya.api.solicitud;
 
+import co.com.crediya.api.solicitud.dto.request.ActualizarEstadoSolicitudRequestDto;
 import co.com.crediya.api.solicitud.dto.request.RegistroSolicitudRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,6 +20,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+import static org.springframework.web.reactive.function.server.RequestPredicates.PATCH;
 
 @Configuration
 public class SolicitudRouter {
@@ -49,23 +51,44 @@ public class SolicitudRouter {
                     )
             ),
             @RouterOperation(
-            path = "/api/v1/solicitudes",
+            path = "/api/v1/solicitud",
             method = RequestMethod.GET,
             beanClass = SolicitudHandler.class,
             beanMethod = "listar",
             operation = @Operation(
                     operationId = "listar",
                     summary = "listar solicitudes",
+                    security = { @SecurityRequirement(name = "bearerAuth") },
                     responses = {
                             @ApiResponse(responseCode = "200", description = "OK")
                     }
             )
     ),
+            @RouterOperation(
+                    path = "/api/v1/solicitud",
+                    method = RequestMethod.PATCH,
+                    beanClass = SolicitudHandler.class,
+                    beanMethod = "actualizarSolicitud",
+                    operation = @Operation(
+                            operationId = "actualizarSolicitud",
+                            summary = "actualizar solicitud",
+                            security = { @SecurityRequirement(name = "bearerAuth") },
+                            requestBody = @RequestBody(
+                            required = true,
+                            content = @Content(schema = @Schema(implementation = ActualizarEstadoSolicitudRequestDto.class))
+                    ),
+                            responses = {
+                                    @ApiResponse(responseCode = "200", description = "OK")
+                            }
+                    )
+            ),
+
     })
     public RouterFunction<ServerResponse> routes(SolicitudHandler solicitudHandler) {
         return RouterFunctions
                 .route(POST("/api/v1/solicitud"), solicitudHandler::registrarSolicitud)
-                .andRoute(GET("/api/v1/solicitudes"), solicitudHandler::listar)
+                .andRoute(GET("/api/v1/solicitud"), solicitudHandler::listar)
+                .andRoute(PATCH("/api/v1/solicitud"), solicitudHandler::actualizarSolicitud)
 
                 ;
 

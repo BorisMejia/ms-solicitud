@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 "/swagger/**"
                         ).permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/solicitud").hasRole("CLIENT")
-                        .pathMatchers(HttpMethod.GET,  "/api/v1/solicitudes").hasAnyRole("ADVISOR")
+                        .pathMatchers(HttpMethod.GET,  "/api/v1/solicitud").hasRole("ADVISOR")
+                        .pathMatchers(HttpMethod.PATCH, "/api/v1/solicitud").hasRole("ADVISOR")
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(o -> o
