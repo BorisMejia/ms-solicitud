@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import co.com.crediya.model.estado.Estado;
 import co.com.crediya.model.estado.EstadoSolicitud;
 import co.com.crediya.model.estado.gateways.EstadoRepository;
+import co.com.crediya.model.notificacionsolicitud.NotificacionSolicitud;
+import co.com.crediya.model.notificacionsolicitud.gateways.NotificacionSolicitudRepository;
 import co.com.crediya.model.solicitud.Solicitud;
 import co.com.crediya.model.solicitante.gateways.SolicitanteInfoRepository;
 import co.com.crediya.model.tipoprestamo.TipoPrestamo;
@@ -31,6 +33,7 @@ public class SolicitudUseCase implements ISolicitudUseCase{
     private final ValidacionSolicitud validacionSolicitud;
     private final EstadoRepository estadoRepository;
     private final SolicitanteInfoRepository solicitanteInfoRepository;
+    private final NotificacionSolicitudRepository notificacionSolicitudRepository;
 
     @Override
     public Mono<Solicitud> registrarSolicitud(SolicitudUseCaseDto solicitud) {
@@ -114,7 +117,15 @@ public class SolicitudUseCase implements ISolicitudUseCase{
                     Solicitud actualizada = solicitud.toBuilder()
                             .estado_solicitud(nuevoEstado)
                             .build();
-                    return solicitudRepository.saveSolicitud(actualizada);
+                    return solicitudRepository.saveSolicitud(actualizada)
+                            .doOnSuccess(saved -> {
+                                NotificacionSolicitud notificacion = new NotificacionSolicitud(
+                                        saved.getId_solicitud(),
+                                        saved.getEmail(),
+                                        nuevoEstado.name()
+                                );
+                                notificacionSolicitudRepository.notificar(notificacion);
+                            });
                 });
     }
 }
