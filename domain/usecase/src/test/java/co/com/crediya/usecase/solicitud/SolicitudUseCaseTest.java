@@ -2,6 +2,8 @@ package co.com.crediya.usecase.solicitud;
 
 import co.com.crediya.model.estado.EstadoSolicitud;
 import co.com.crediya.model.estado.gateways.EstadoRepository;
+import co.com.crediya.model.notificacionsolicitud.NotificacionSolicitud;
+import co.com.crediya.model.notificacionsolicitud.gateways.NotificacionSolicitudRepository;
 import co.com.crediya.model.solicitante.gateways.SolicitanteInfoRepository;
 import co.com.crediya.model.solicitud.Solicitud;
 import co.com.crediya.model.solicitud.exception.NotFoundException;
@@ -39,11 +41,13 @@ public class SolicitudUseCaseTest {
     EstadoRepository estadoRepository;
     @Mock
     SolicitanteInfoRepository solicitanteInfoRepository;
+    @Mock
+    NotificacionSolicitudRepository notificacionSolicitudRepository;
     private SolicitudUseCase useCase;
 
     @BeforeEach
     void setUp() {
-        useCase = new SolicitudUseCase(solicitudRepository, tipoPrestamoRepository, validacionSolicitud, estadoRepository, solicitanteInfoRepository );
+        useCase = new SolicitudUseCase(solicitudRepository, tipoPrestamoRepository, validacionSolicitud, estadoRepository, solicitanteInfoRepository, notificacionSolicitudRepository );
     }
 
     private Solicitud validSolicitud() {
